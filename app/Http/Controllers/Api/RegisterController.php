@@ -11,28 +11,38 @@ class RegisterController extends Controller
 {
     public function __invoke(Request $request)
     {
-        // set validation
+        // Validasi data
         $validator = Validator::make($request->all(), [
             'username' => 'required',
             'nama' => 'required',
             'password' => 'required|min:5|confirmed',
-            'level_id' => 'required'
+            'level_id' => 'required|integer',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        // if validator fails
+        // Jika validasi gagal
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        // create user
+        // Proses upload file gambar
+        $imageName = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = $image->hashName(); // Nama file unik
+            $image->storeAs('public/posts', $imageName); // Simpan file
+        }
+
+        // Buat user baru
         $user = UserModel::create([
             'username' => $request->username,
-            'nama' => $request->nama,  // Pastikan nama field sama dengan yang ada di database
+            'nama' => $request->nama,
             'password' => bcrypt($request->password),
             'level_id' => $request->level_id,
+            'image' => $imageName, // Simpan nama file di database
         ]);
 
-        // return response JSON if user is created
+        // Return response JSON jika user berhasil dibuat
         if ($user) {
             return response()->json([
                 'success' => true,
@@ -42,6 +52,7 @@ class RegisterController extends Controller
 
         return response()->json([
             'success' => false,
+            'message' => 'User creation failed',
         ], 409);
     }
 }

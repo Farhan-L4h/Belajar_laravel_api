@@ -19,5 +19,11 @@ class BarangModel extends Model
         'barang_nama',
         'harga_jual',
         'harga_beli',
+        'image',
     ];
+
+    public function kategori()
+    {
+        return $this->belongsTo(KategoriModel::class, 'kategori_id');
+    }
 }

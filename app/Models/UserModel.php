@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Models\LevelModel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class UserModel extends Authenticatable implements JWTSubject
 {
@@ -21,6 +22,7 @@ class UserModel extends Authenticatable implements JWTSubject
         'nama', // Pastikan ini sesuai dengan nama kolom di database, misalnya 'nama' jika nama kolomnya memang 'nama'
         'password',
         'level_id',
+        'image',
     ];
 
     public function getJWTIdentifier()
@@ -36,5 +38,11 @@ class UserModel extends Authenticatable implements JWTSubject
     public function level()
     {
         return $this->belongsTo(LevelModel::class, 'level_id');
+    }
+
+    protected function image() : Attribute {
+        return Attribute::make(
+            get: fn ($image) => url('/storage/posts/' . $image),
+        );
     }
 }
